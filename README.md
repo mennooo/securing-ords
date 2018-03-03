@@ -6,11 +6,12 @@ The demo that makes the most sence is securing a REST API for a B2B E-commerce a
 
 Oracle APEX is perfect because you can build database-driven applications using the web browser.
 
-We are a wholesale company that sells clothes to online stores. The people that buy the clothes 
+We are a an online store that sells clothes to customers.
 
-For this demo we build an B2C (bussiness-to-consumer) E-commerse application on top of a **Packaged App** in Oracle APEX: the **Sample Database Application**. This will be an Oracle Jet application because then it makes sence to use a REST API. The Oracle JET API provides the oj.OAuth authorization plugin which supports the OAuth 2.0 open protocol.
+For this demo we build our E-commerse application on top of a **Packaged App** in Oracle APEX: the **Sample Database Application**. This will be an Oracle Jet application because then it makes sence to use a REST API. The Oracle JET API provides the oj.OAuth authorization plugin which supports the OAuth 2.0 open protocol.
 
-The goal is to create a REST API for the B2C stores where they can:
+The goal is to create a REST API for the E-commerse application to let customers:
+- Create an account
 - Place new orders
 - See products
 - See order history
@@ -21,13 +22,13 @@ The goal is to create a REST API for the B2C stores where they can:
 ## Oauth2 protocol
 
 ### Resource owner
-Us as the wholesale (B2B) company
+The E-commerse store
 
 ### Resource server
 ORDS webserver
 
 ### Client
-The online store
+The customers
 
 ### Authorization server
 The Oracle Database
