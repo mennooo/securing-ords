@@ -101,3 +101,7 @@ https://oracle-base.com/articles/misc/oracle-rest-data-services-ords-open-api-sw
 http://editor.swagger.io/
 
 ### Generate client code
+
+## Sample E-commerce Application
+A simple boilertemplate has been used from http://megaboilerplate.com for this node.js web application.
+
