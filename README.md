@@ -2,9 +2,7 @@
 How to secure a REST API build with Oracle REST Data Services (ORDS)
 
 ## Demo API
-The demo that makes the most sence is securing a REST API for a B2B E-commerce application. B2B e-commerce, short for business-to-business, electronic commerce, is selling products or services between businesses through the internet via an online sales portal.
-
-Oracle APEX is perfect because you can build database-driven applications using the web browser.
+A demo that makes the sence is securing a REST API for an E-commerce application.
 
 We are a an online store that sells clothes to customers. We will base the API on data from a **Packaged App** in Oracle APEX: the **Sample Database Application**.
 
