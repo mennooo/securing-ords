@@ -44,11 +44,15 @@ The customers
 ### Authorization server
 The Oracle Database
 
-### Choosing an Oauth Authorization Code Flow
-- Authorization Code: used with server-side Applications
-- Implicit: used with Mobile Apps or Web Applications (applications that run on the user's device)
-- Resource Owner Password Credentials: used with trusted Applications, such as those owned by the service itself
-- Client Credentials: used with Applications API access
+### Choosing an Authorization Grant flow
+#### Authorization Code 
+used with server-side Applications
+#### Implicit
+used with Mobile Apps or Web Applications (applications that run on the user's device)
+#### Resource Owner Password Credentials
+used with trusted Applications, such as those owned by the service itself
+#### Client Credentials
+used with Applications API access
 
 ## Creating a client
 
