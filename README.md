@@ -11,13 +11,21 @@ We are a an online store that sells clothes to customers.
 For this demo we build our E-commerse application on top of a **Packaged App** in Oracle APEX: the **Sample Database Application**. This will be an Oracle Jet application because then it makes sence to use a REST API. The Oracle JET API provides the oj.OAuth authorization plugin which supports the OAuth 2.0 open protocol.
 
 The goal is to create a REST API for the E-commerse application to let customers:
-- Create an account
+- See products (not secured)
+- Create an account (not secured)
 - Place new orders
-- See products
 - See order history
 
 ## Basic authentication
+The endpoint requires a user to specify there username and password. If it's not present in the request header, the user will be redirected to an ORDS login page first.
 
+The users must be created on the ORDS webserver.
+
+```bash
+java -jar ords.war user emp_user emp_role
+Enter a password for user emp_user:
+Confirm password for user emp_user:
+```
 
 ## Oauth2 protocol
 
