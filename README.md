@@ -30,6 +30,37 @@ Enter a password for user emp_user:
 Confirm password for user emp_user:
 ```
 
+curl
+```bash
+curl -i -k --user emp_user:Password1 https://ol7-121.localdomain:8443/ords/pdb1/testuser1/testmodule1/emp/7788
+```
+
+jQuery
+```javascript
+$.ajax
+({
+  type: "GET",
+  url: "index1.php",
+  dataType: 'json',
+  async: false,
+  username: username,
+  password: password,
+  data: '{ "comment" }',
+  success: function (){
+    alert('Thanks for your comment!'); 
+  }
+});
+```
+
+Oracle Jet
+The Oracle JET framework provides three ways to customize the AJAX requests that Oracle JET makes when accessing REST services through the Common Model.
+
+Pass custom AJAX options in Common Model CRUD API calls.
+
+Supply a customURL callback function.
+
+Replace the oj.sync or oj.ajax functions.
+
 Basic authentication could be used for internal APIs where the user would be another application that has access to the data. 
 In this situation, the users are known and don't change much over time. 
 
