@@ -6,9 +6,9 @@ The demo that makes the most sence is securing a REST API for a B2B E-commerce a
 
 Oracle APEX is perfect because you can build database-driven applications using the web browser.
 
-For this demo we build an E-commerse application on top of a **Packaged App** in Oracle APEX: the **Sample Database Application**.
+For this demo we build an B2C (bussiness-to-consumer) E-commerse application on top of a **Packaged App** in Oracle APEX: the **Sample Database Application**. This will be an Oracle Jet application because then it makes sence to use a REST API.
 
-The goal is to create a REST API for customers where they can:
+The goal is to create a REST API for the B2C where they can:
 - Place new orders
 - See products
 - See order history
