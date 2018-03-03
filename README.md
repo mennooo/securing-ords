@@ -30,6 +30,11 @@ Enter a password for user emp_user:
 Confirm password for user emp_user:
 ```
 
+Basic authentication could be used for internal APIs where the user would be another application that has access to the data. 
+In this situation, the users are known and don't change much over time. 
+
+If you are exposing the API externally, then you should always go for Oauth2 because it's more secure and doens't require the manual process of creating users in ORDS.
+
 ## Oauth2 protocol
 
 ### Resource owner
