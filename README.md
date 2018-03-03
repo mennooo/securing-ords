@@ -11,9 +11,9 @@ For this demo we see how the authorization works in three steps
 2. Using the API via Postman with Oauth2
 3. Using the API via a web application with Oauth2
 
-For the last step we build our E-commerse application using Oracle Jet application because then it makes sence to use a REST API. The Oracle JET API provides the oj.OAuth authorization plugin which supports the OAuth 2.0 open protocol.
+For the last step we build our E-commerce application using Oracle Jet application because then it makes sence to use a REST API. The Oracle JET API provides the oj.OAuth authorization plugin which supports the OAuth 2.0 open protocol.
 
-The goal is to create a REST API for the E-commerse application to let customers:
+The goal is to create a REST API for the E-commerce application to let customers:
 - See products (not secured)
 - Create an account (not secured)
 - Place new orders
@@ -33,7 +33,7 @@ Confirm password for user emp_user:
 ## Oauth2 protocol
 
 ### Resource owner
-The E-commerse store
+The E-commerce store
 
 ### Resource server
 ORDS webserver
@@ -45,6 +45,10 @@ The customers
 The Oracle Database
 
 ### Choosing an Oauth Authorization Code Flow
+- Authorization Code: used with server-side Applications
+- Implicit: used with Mobile Apps or Web Applications (applications that run on the user's device)
+- Resource Owner Password Credentials: used with trusted Applications, such as those owned by the service itself
+- Client Credentials: used with Applications API access
 
 ## Creating a client
 
