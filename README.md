@@ -104,4 +104,7 @@ http://editor.swagger.io/
 
 ## Sample E-commerce Application
 A simple boilertemplate has been used from http://megaboilerplate.com for this node.js web application.
+This way, we have an application skeleton in place including authentication.
+
+Extra things are added of course to turn it into an E-commerce application for clothes.
 
