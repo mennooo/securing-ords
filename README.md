@@ -25,7 +25,9 @@ You can use this file to import the REST definition into your database.
 ### Securing the REST API
 To make sure some of our REST endpoints require authorization, we have to add privileges to the these resources.
 
-You can choose to set the privilege on the whole module, in this case the our whole API, or specific resources. The last one suits our needs because the product endpoint and account creating don't require authorization.
+You can choose to set the privilege on the whole module, in this case the our whole API, or specific resources. The last one suits our needs because the product endpoint and account creating doesn't require authorization.
+
+You don't specify what kind of authorization is used in the API. They all can be used.
 
 ## Basic authentication
 The endpoint requires a user to specify there username and password. If it's not present in the request header, the user will be redirected to an ORDS login page first.
