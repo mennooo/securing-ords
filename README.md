@@ -11,7 +11,7 @@ For this demo we see how the authorization works in three steps
 2. Using the API via Postman with Oauth2
 3. Using the API via a web application with Oauth2
 
-For the last step we build our E-commerce application using Oracle Jet application because then it makes sence to use a REST API. The Oracle JET API provides the oj.OAuth authorization plugin which supports the OAuth 2.0 open protocol.
+For the last step we build our E-commerce application using node.js because then it makes sence to use a REST API.
 
 The goal is to create a REST API for the E-commerce application to let customers:
 - See products (not secured)
