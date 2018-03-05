@@ -30,6 +30,8 @@ You can choose to set the privilege on the whole module, in this case the our wh
 ## Basic authentication
 The endpoint requires a user to specify there username and password. If it's not present in the request header, the user will be redirected to an ORDS login page first.
 
+This is also named First Party Cookie Based Authentication. The name of the cookie is `__ords_sid__`.
+
 The users must be created on the ORDS webserver.
 
 ```bash
