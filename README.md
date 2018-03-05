@@ -19,6 +19,14 @@ The goal is to create a REST API for the E-commerce application to let customers
 - Place new orders
 - See order history
 
+## Creating the API
+You can use this file to import the REST definition into your database.
+
+### Securing the REST API
+To make sure some of our REST endpoints require authorization, we have to add privileges to the these resources.
+
+You can choose to set the privilege on the whole module, in this case the our whole API, or specific resources. The last one suits our needs because the product endpoint and account creating don't require authorization.
+
 ## Basic authentication
 The endpoint requires a user to specify there username and password. If it's not present in the request header, the user will be redirected to an ORDS login page first.
 
