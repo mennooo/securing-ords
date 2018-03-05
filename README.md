@@ -80,6 +80,13 @@ If you are exposing the API externally, then you should always go for Oauth2 bec
 
 ## Oauth2 protocol
 
+### Two-Legged and Three-Legged OAuth Flows
+Two-legged: the customer does not have to grant the Oauth client permissions.
+
+
+Three-legged: the customer has to grant the Oauth client permissions.
+
+
 ### Resource owner
 The E-commerce store
 
