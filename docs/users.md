@@ -64,6 +64,8 @@ https://community.oracle.com/thread/4117960
 ## Glassfish JDBC Realm to User Repository
 Glassfish will be **deprecated** and therefore not the prefered approach. But since it still works, here's the config..
 
+Glassfish 5.0 will not deploy ords.war so please use Glassfish 4.1.2.
+
 ### JDBC Connection Pool
 Pool Name: OraclePool  
 Resource Type: javax.sql.DataSource  
