@@ -99,6 +99,8 @@ Group Table User Name Column: userid
 Group Name Column: groupid  
 Password Encryption Algorithm: AES  
 
+Under security, change the default realm to `database`
+
 Restart the domain.
 
 Now you should be able to use users from the table to authenticate for REST API usage.
