@@ -76,12 +76,6 @@ url: jdbc:oracle:thin:@localhost:1521:ORCL
 username: demo  
 password: demo  
 
-Make sure to copy for example `ojdbc8.jar` to `<your-domain>\lib`. For example:
-
-`glassfish4\glassfish\domains\domain1\lib\ojdbc8.jar`
-
-Restart the domain.
-
 Then click the ping button in this new Connection Pool.
 
 ### JDBC Resources
