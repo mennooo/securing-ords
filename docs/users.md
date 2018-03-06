@@ -51,7 +51,7 @@ insert into users(userid, password)
 values ('scott', dbms_crypto.hash(utl_raw.cast_to_raw('tiger'), 4));
 
 insert into user_groups(groupid, userid) 
-values ('twinq.test.api', 'scott');
+values ('demo.api.consumer', 'scott');
 
 commit;
 ```
