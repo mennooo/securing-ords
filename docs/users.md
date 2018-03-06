@@ -95,6 +95,13 @@ IN `server.xml` add the new resource under `GlobalNamingResources`.
                url="jdbc:oracle:thin:@localhost:1521:ORCL"/>
 ```
 
+
+Make sure to copy for example `ojdbc8.jar` to `$CATALINA_BASE\lib`. For example:
+
+`C:\Program Files\Apache Software Foundation\Tomcat 9.0\lib\ojdbc8.jar`
+
+Restart the Tomcat.
+
 ### DataSourceRealm
 DataSourceRealm is an implementation of the Tomcat Realm interface that looks up users in a relational database accessed via a JNDI named JDBC DataSource.
 
