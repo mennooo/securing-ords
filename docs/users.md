@@ -42,14 +42,14 @@ commit;
 ```
 
 ### JDBC Connection Pool
-Pool Name: OraclePool
-Resource Type: javax.sql.DataSource
-Database Driver Vendor: Oracle
+Pool Name: OraclePool  
+Resource Type: javax.sql.DataSource  
+Database Driver Vendor: Oracle  
 
-Additional Properties:
-url: jdbc:oracle:thin:@localhost:1521:ORCL
-username: demo
-password: demo
+**Additional Properties**  
+url: jdbc:oracle:thin:@localhost:1521:ORCL  
+username: demo  
+password: demo  
 
 Make sure to copy for example `ojdbc8.jar` to `<your-domain>\lib`. For example:
 
@@ -60,15 +60,15 @@ Restart the domain.
 Then click the ping button in this new Connection Pool.
 
 ## JDBC Realm
-JAAS Context: jdbcRealm
-JNDI: jdbc/orcl
-User Table: glassfish_users
-User Name Column: userid
-Password Column: password
-Group Table: glassfish_user_groups
-Group Table User Name Column: userid
-Group Name Column: groupid
-Password Encryption Algorithm: AES
+JAAS Context: jdbcRealm  
+JNDI: jdbc/orcl  
+User Table: glassfish_users  
+User Name Column: userid  
+Password Column: password  
+Group Table: glassfish_user_groups  
+Group Table User Name Column: userid  
+Group Name Column: groupid  
+Password Encryption Algorithm: AES  
 
 Restart the domain.
 
