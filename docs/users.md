@@ -6,6 +6,14 @@ The users for an external REST API are likely to be found in a database table. L
 
 ## Authenticating users against a User Repository via JDBC
 
+We can run ORDS in multiple ways:
+- Standalone (free, uses Jetty)
+- Glassfish (free, deprecated)
+- Apache Tomcat (free)
+- Oracle Weblogic (paid licence)
+
+But working with user repositories is a problem for Standalone and Apache Tomcat at the moment. We'll learn why later.
+
 ### User Repository table structure
 
 The users table must contain at least two columns:
@@ -56,8 +64,6 @@ https://community.oracle.com/thread/4117960
 ## Glassfish JDBC Realm to User Repository
 Glassfish will be **deprecated** and therefore not the prefered approach. But since it still works, here's the config..
 
-### Table structure
-
 ### JDBC Connection Pool
 Pool Name: OraclePool  
 Resource Type: javax.sql.DataSource  
@@ -93,14 +99,14 @@ Password Encryption Algorithm: AES
 
 Restart the domain.
 
-Now you should be able to use user from the table to authenticate for REST API usage.
+Now you should be able to use users from the table to authenticate for REST API usage.
 
 ## Apache Tomcat JDBC Realm to User Repository
 Currently, we can't use a Tomcat User Repository. There is currently a bug in ORDS (current version 17.4.1):
 
 https://community.oracle.com/thread/4084028
 
-But I try to define it anyway
+But I try to define it anyway.
 
 ### JNDI DataSource
 IN `server.xml` add the new resource under `GlobalNamingResources`.
@@ -116,8 +122,6 @@ IN `server.xml` add the new resource under `GlobalNamingResources`.
 Make sure to copy for example `ojdbc8.jar` to `$CATALINA_BASE\lib`. For example:
 
 `C:\Program Files\Apache Software Foundation\Tomcat 9.0\lib\ojdbc8.jar`
-
-Restart the Tomcat.
 
 ### DataSourceRealm
 DataSourceRealm is an implementation of the Tomcat Realm interface that looks up users in a relational database accessed via a JNDI named JDBC DataSource.
@@ -136,7 +140,8 @@ Add the following under `<Engine name="Catalina" defaultHost="localhost">` in `s
           algorithm="SHA-256" iterations="1" saltLength="0" encoding="UTF-8" />
       </Realm>
 ```
+
+Restart Tomcat and try to login.
+
 ## Weblogic JDBC Realm to User Repository
 A paid licence is needed for Weblogic and therefore no part of this tutorial.
-
-## JDBC Realm
