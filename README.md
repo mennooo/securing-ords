@@ -2,11 +2,11 @@
 How to secure a REST API build with Oracle REST Data Services (ORDS)
 
 ## Content
-- [Prerequisites] (lala)
-- [Installing ORDS]
-- [Creating the REST API]
-- [Running ORDS on Glassfish]
-- [Running ORDS on Tomcat]
+- [Prerequisites](#lala)
+- [Installing ORDS]()
+- [Creating the REST API]()
+- [Running ORDS on Glassfish]()
+- [Running ORDS on Tomcat]()
 
 ## Demo API
 A demo that makes the sence is securing a REST API for an E-commerce application.
