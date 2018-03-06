@@ -109,13 +109,15 @@ Add the following under `<Engine name="Catalina" defaultHost="localhost">` in `s
 
 ```xml
 <Realm className="org.apache.catalina.realm.DataSourceRealm"
-       dataSourceName="jdbc/orcl"
+       dataSourceName="jdbc/otwq"
        userTable="USERS"
        userNameCol="USERNAME"
        userCredCol="PASSWORD"
        userRoleTable="ROLES"
-       roleNameCol="ROLE"
-       digest="SHA-256"/>
+       roleNameCol="ROLE">
+        <CredentialHandler className="org.apache.catalina.realm.MessageDigestCredentialHandler" 
+          algorithm="SHA-256" iterations="1" saltLength="0" encoding="UTF-8" />
+      </Realm>
 ```
 ## Weblogic JDBC Realm to User Repository
 A paid licence is needed for Weblogic and therefore no part of this tutorial.
