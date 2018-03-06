@@ -4,42 +4,59 @@ Instead we want to be able to specify in the webserver where the users can be fo
 
 The users for an external REST API are likely to be found in a database table. Let's see how this works for the web servers.
 
+## Authenticating users against a User Repository via JDBC
 
-## Glassfish JDBC Realm to User Repository
-Glassfish will be deprecated and therefore this is not the prefered approach. But since it still works, here the config..
+### User Repository table structure
 
-### Table structure
+The users table must contain at least two columns:
+- Username
+- Password (Make sure the value is encrypted)
+
+There must be a table that contains one row for every valid role that is assigned to a particular user. It is legal for a user to have zero, one, or more than one valid role. The user roles table must contain at least two columns:
+- Username
+- Role name
+
 ```sql
-create table glassfish_user_groups (
+create table user_groups (
   groupid   varchar2(20) not null,
   userid    varchar2(255) not null
 );
 
-alter table glassfish_user_groups add constraint user_groups_pk primary key ( groupid );
+alter table user_groups add constraint user_groups_pk primary key ( groupid );
 
-create table glassfish_users (
+create table users (
   userid     varchar2(255) not null,
   password   varchar2(255) not null
 );
 
-alter table glassfish_users add constraint users_pk primary key ( userid );
+alter table users add constraint users_pk primary key ( userid );
 
-alter table glassfish_user_groups
+alter table user_groups
   add constraint user_groups_users_fk foreign key ( userid )
-    references glassfish_users ( userid );
+    references users ( userid );
 ```
 
-Now add a user
+Now add a user (scott/tiger)
 
 ```sql
-insert into glassfish_users(userid, password) 
-values ('menno', dbms_crypto.hash(utl_raw.cast_to_raw('menno'), 4));
+insert into users(userid, password) 
+values ('scott', dbms_crypto.hash(utl_raw.cast_to_raw('tiger'), 4));
 
-insert into glassfish_user_groups(groupid, userid) 
-values ('twinq.test.api', 'menno');
+insert into user_groups(groupid, userid) 
+values ('twinq.test.api', 'scott');
 
 commit;
 ```
+
+### ORDS Standalone
+Seems not possible:
+
+https://community.oracle.com/thread/4117960
+
+## Glassfish JDBC Realm to User Repository
+Glassfish will be **deprecated** and therefore not the prefered approach. But since it still works, here's the config..
+
+### Table structure
 
 ### JDBC Connection Pool
 Pool Name: OraclePool  
