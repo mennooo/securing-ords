@@ -6,7 +6,7 @@ The users for an external REST API are likely to be found in a database table. L
 
 
 ## Glassfish JDBC Realm to User Repository
-Glassfish will be deprecated and therefore this is not the prefered approach.
+Glassfish will be deprecated and therefore this is not the prefered approach. But since it still works, here the config..
 
 ### Table structure
 ```sql
@@ -59,7 +59,11 @@ Restart the domain.
 
 Then click the ping button in this new Connection Pool.
 
-## JDBC Realm
+### JDBC Resources
+JNDI Name: jdbc/orcl
+Pool Name: 'OraclePool'
+
+### JDBC Realm
 JAAS Context: jdbcRealm  
 JNDI: jdbc/orcl  
 User Table: glassfish_users  
@@ -72,7 +76,7 @@ Password Encryption Algorithm: AES
 
 Restart the domain.
 
-Now you should be able to use it.
+Now you should be able to use user from the table to authenticate for REST API usage.
 
 ## Apache Tomcat JDBC Realm to User Repository
 Currently, we can't use a Tomcat User Repository. There is currently a bug in ORDS (current version 17.4.1):
