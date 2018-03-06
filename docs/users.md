@@ -83,6 +83,33 @@ Currently, we can't use a Tomcat User Repository. There is currently a bug in OR
 
 https://community.oracle.com/thread/4084028
 
+But I try to define it anyway
+
+### JNDI DataSource
+IN `server.xml` add the new resource under `GlobalNamingResources`.
+
+```xml
+    <Resource name="jdbc/orcl" auth="Container" type="javax.sql.DataSource"
+               maxTotal="100" maxIdle="30" maxWaitMillis="10000"
+               username="twqb7" password="twqb7" driverClassName="oracle.jdbc.driver.OracleDriver"
+               url="jdbc:oracle:thin:@localhost:1521:ORCL"/>
+```
+
+### DataSourceRealm
+DataSourceRealm is an implementation of the Tomcat Realm interface that looks up users in a relational database accessed via a JNDI named JDBC DataSource.
+
+Add the following under `<Engine name="Catalina" defaultHost="localhost">` in `server.xml`.
+
+```xml
+<Realm className="org.apache.catalina.realm.DataSourceRealm"
+       dataSourceName="jdbc/orcl"
+       userTable="USERS"
+       userNameCol="USERNAME"
+       userCredCol="PASSWORD"
+       userRoleTable="ROLES"
+       roleNameCol="ROLE"
+       digest="SHA-256"/>
+```
 ## Weblogic JDBC Realm to User Repository
 A paid licence is needed for Weblogic and therefore no part of this tutorial.
 
