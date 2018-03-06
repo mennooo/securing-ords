@@ -6,7 +6,7 @@ The users for an external REST API are likely to be found in a database table. L
 
 
 ## Glassfish JDBC Realm to User Repository
-Glassfish will be depricated and therefore this is not the prefered approach.
+Glassfish will be deprecated and therefore this is not the prefered approach.
 
 ### Table structure
 ```sql
