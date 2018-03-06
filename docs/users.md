@@ -6,6 +6,7 @@ The users for an external REST API are likely to be found in a database table. L
 
 
 ## Glassfish JDBC Realm to User Repository
+Glassfish will be depricated and therefore this is not the prefered approach.
 
 ### Table structure
 ```sql
@@ -40,9 +41,38 @@ values ('twinq.test.api', 'menno');
 commit;
 ```
 
-Glassfish will be depricated and therefore this is not the prefered approach.
+### JDBC Connection Pool
+Pool Name: OraclePool
+Resource Type: javax.sql.DataSource
+Database Driver Vendor: Oracle
 
+Additional Properties:
+url: jdbc:oracle:thin:@localhost:1521:ORCL
+username: demo
+password: demo
 
+Make sure to copy for example `ojdbc8.jar` to `<your-domain>\lib`. For example:
+
+`glassfish4\glassfish\domains\domain1\lib\ojdbc8.jar`
+
+Restart the domain.
+
+Then click the ping button in this new Connection Pool.
+
+## JDBC Realm
+JAAS Context: jdbcRealm
+JNDI: jdbc/orcl
+User Table: glassfish_users
+User Name Column: userid
+Password Column: password
+Group Table: glassfish_user_groups
+Group Table User Name Column: userid
+Group Name Column: groupid
+Password Encryption Algorithm: AES
+
+Restart the domain.
+
+Now you should be able to use it.
 
 ## Apache Tomcat JDBC Realm to User Repository
 Currently, we can't use a Tomcat User Repository. There is currently a bug in ORDS (current version 17.4.1):
