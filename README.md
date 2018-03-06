@@ -6,7 +6,7 @@ How to secure a REST API build with Oracle REST Data Services (ORDS)
 - [Installing ORDS]()
 - [Creating the REST API]()
 - [Configure user authentication on Glassfish]()
-- [Configure user authentication on Tomcat]() (does not work for current release)
+- [Configure user authentication on Tomcat]() (does not work for current ORDS release 17.4.1)
 - [Configure user authentication on ORDS Standalone]() (only for local ORDS users)
 - [Configure user authentication on Weblogic]() (requires a paid licence)
 
