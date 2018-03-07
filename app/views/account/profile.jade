@@ -70,6 +70,10 @@ block content
           legend Linked Accounts
           .form-group
             .col-sm-offset-3.col-sm-4
+              if user.facebook
+                p: a.text-danger(href='/unlink/facebook') Unlink your Facebook account
+              else
+                p: a(href='/auth/facebook') Link your Facebook account
 
     .panel
       .panel-body
