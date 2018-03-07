@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  .container-fluid
+    if messages.error
+      .alert.alert-danger(role='alert')
+        for error in messages.error
+          div= error.msg
+    if messages.success
+      .alert.alert-success(role='alert')
+        for success in messages.success
+          div= success.msg
+    if messages.info
+      .alert.alert-info(role='alert')
+        for info in messages.info
+          div= info.msg
+
+    .row
+      .col-12
+        .col-md-8.col-md-offset-2
+          h2
+            | Your order history
+          table.table
+            thead
+              tr
+                th Date
+                th Product
+                th Quantity
+                th Price
+            tbody
+            each order in orders
+              tr
+                td= order.order_date
+                td= order.product_name
+                td= order.quantity
+                td $#{order.price},-

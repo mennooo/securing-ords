@@ -20,6 +20,7 @@ block content
           .form-group
             a(href='/forgot')
               strong Forgot your password?
+          input(type="hidden", name='redirect', id='redirect', value='#{redirect}')
           button.btn.btn-success(type='submit') Log in
 
         .hr-title

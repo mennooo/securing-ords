@@ -30,7 +30,7 @@ block content
                 p= product.product_description
                 p
                   span $#{product.list_price},-
-                  a.btn.btn-primary.pull-right(href='/order', role='button') 
+                  a.btn.btn-primary.pull-right(href='/order?id=#{product.product_id}', role='button') 
                     span.glyphicon.glyphicon-shopping-cart(aria-hidden="true") 
                     |  Buy
       

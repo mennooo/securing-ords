@@ -1,17 +1,28 @@
+var User = require('../models/User')
 var OrderHistory = require('../models/OrderHistory')
 
 /**
  * GET /
  */
 exports.historyGet = function (req, res) {
-  OrderHistory.getHistory()
-    .then(function (response) {
-      res.render('order-history', {
-        title: 'Order history',
-        content: JSON.stringify(response.data)
-      })
+  new User({ id: req.user.id })
+    .fetch()
+    .then(function (user) {
+
+      OrderHistory.getHistory(user)
+        .then(function (response) {
+          console.log(response.data.items)
+          res.render('order-history', {
+            title: 'Order history',
+            orders: response.data.items
+          })
+        })
+        .catch(function (error) {
+          console.log(error)
+          res.send(error.message)
+        })
     })
-    .catch(function (error) {
-      console.log(error)
+    .catch(function (err) {
+      console.log(err.message)
     })
 }

@@ -1,18 +1,18 @@
 var axios = require('axios')
 
-var securedRequest = axios.create({
-  baseURL: process.env.REST_BASE_URL,
-  auth: {
-    username: 'janedoe',
-    password: 's00pers3cret'
-  }
-})
-
-var publicRequest = axios.create({
-  baseURL: process.env.REST_BASE_URL
-})
-
-module.exports = function (secured) {
-  return (secured) ? securedRequest : publicRequest
+var basicAuthCredentials = {
+  username: null,
+  password: null
 }
 
+exports.request = function () {
+  return axios.create({
+    baseURL: process.env.REST_BASE_URL,
+    auth: basicAuthCredentials
+  })
+}
+
+exports.setBasicAuthCredentials = function (username, password) {
+  basicAuthCredentials.username = username
+  basicAuthCredentials.password = password
+}

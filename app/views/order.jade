@@ -14,10 +14,31 @@ block content
       .alert.alert-info(role='alert')
         for info in messages.info
           div= info.msg
-
-    .row
-      .col-12
-        .panel
-          .panel-body
-            h3 Thanks for your order
+    form(method='POST')
+      .row
+        .col-12
+          .col-md-8.col-md-offset-2
+            h2
+              | Review Your Order & Complete Checkout
+            hr
+            .col-xs-2.item-photo
+              img(src='data:#{product.mimetype};base64, #{product.product_image}', alt='...')
+            .col-xs-5(style='border:0px solid gray')
+              h3= product.product_name
+              | #{product.product_description}
+              h6.title-price
+                small CATEGORY
+              h3(style='margin-top:0px;') #{product.category}
+              h6.title-price
+                small PRICE
+              h3(style='margin-top:0px;') $#{product.list_price},-
+              .section(style='padding-bottom:20px;')
+                h6.title-attr
+                  small QUANTITY
+                div
+                  input(value='1', type='number', name="quantity", id="quantity")
+              .section(style='padding-bottom:20px;')
+                input(value='#{product.product_id}', type='hidden', name="product_id", id="product_id")
+                button.btn.btn-success(href='/order-history', role='button')
+                  |  Place the order
 

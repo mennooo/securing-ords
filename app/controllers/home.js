@@ -1,4 +1,4 @@
-var Products = require('../models/Products')
+var Product = require('../models/Product')
 
 function arrayTo2DArray (list, howMany) {
   let result = []
@@ -13,7 +13,7 @@ function arrayTo2DArray (list, howMany) {
  * GET /
  */
 exports.index = function (req, res) {
-  Products.getList()
+  Product.getList()
     .then(function (response) {
       res.render('home', {
         title: 'Home',

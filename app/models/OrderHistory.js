@@ -1,7 +1,5 @@
-var rest = require('../config/rest')({
-  secured: false
-})
+var rest = require('../config/rest')
 
 exports.getHistory = function () {
-  return rest.get('products')
+  return rest.request().get('orders')
 }

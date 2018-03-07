@@ -12,8 +12,11 @@ block content
         form(method='POST')
           legend Create an account
           .form-group
-            label(for='name') Name
-            input.form-control(type='text', name='name', id='name', placeholder='Name', autofocus=true)
+            label(for='firstname') First Name
+            input.form-control(type='text', name='firstname', id='firstname', placeholder='First Name', autofocus=true)
+          .form-group
+            label(for='lastname') Last Name
+            input.form-control(type='text', name='lastname', id='lastname', placeholder='Last Name')
           .form-group
             label(for='email') Email
             input.form-control(type='email', name='email', id='email', placeholder='Email')
