@@ -19,9 +19,13 @@ var userController = require('./controllers/user')
 var contactController = require('./controllers/contact')
 var orderHistoryController = require('./controllers/order-history')
 var orderController = require('./controllers/order')
+var callbackController = require('./controllers/callback')
 
 // Passport OAuth strategies
 require('./config/passport')
+
+// REST config
+var rest = require('./config/rest')
 
 var app = express()
 
@@ -67,6 +71,7 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', { successRe
 app.get('/order-history', userController.ensureAuthenticated, orderHistoryController.historyGet)
 app.get('/order', orderController.orderGet)
 app.post('/order', userController.ensureAuthenticated, orderController.orderPost)
+app.get('/callback', callbackController.callbackGet)
 
 // Production error handler
 if (app.get('env') === 'production') {
@@ -78,6 +83,9 @@ if (app.get('env') === 'production') {
 
 app.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'))
+
+  // Create application
+  rest.init('fashion')
 })
 
 module.exports = app

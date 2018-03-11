@@ -1,12 +1,11 @@
 var rest = require('../config/rest')
 
 exports.getOrder = function () {
-  return rest.request().get('products')
+  return rest.clientRequest('get', 'products')
 }
 
 exports.postOrder = function (order) {
-  console.log(order)
-  return rest.request().post('orders', {
+  return rest.userRequest('post', 'orders', {
     'product_id': order.productId,
     'quantity': order.quantity
   })

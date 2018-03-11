@@ -21,6 +21,9 @@ exports.index = function (req, res) {
       })
     })
     .catch(function (error) {
-      console.log(error)
+      console.log(1, Object.getOwnPropertyNames(error))
+      res.send({
+        messages: error.message
+      })
     })
 }

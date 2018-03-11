@@ -12,7 +12,7 @@ var User = bookshelf.Model.extend({
   hasTimestamps: true,
 
   initialize: function () {
-    this.on('created', this.addAsCustomer, this)
+    this.on('creating', this.addAsCustomer, this)
     this.on('saving', this.hashPassword, this)
   },
 
@@ -41,16 +41,26 @@ var User = bookshelf.Model.extend({
   },
 
   addAsCustomer: function (model, attrs, options) {
+    // Return user model
     return new Promise(function (resolve, reject) {
-      rest.request().post('/customers', {
+      rest.clientRequest('post', '/customers', {
         'first_name': model.get('firstname'),
         'last_name': model.get('lastname'),
         'email': model.get('email'),
-        'password': model.get('password')
+        'password': sha256hash(model.get('password'))
       })
         .then(function (response) {
-          console.log(response.data)
-          model.set('customerid', response.data.location)
+          model.set({
+            customerid: response.data.location
+          })
+          //
+          // Get oauth access token (if needed)
+          if (rest.useOauth && rest.userOAuthFlow.uri) {
+            console.log(1)
+            var error = new Error('User needs to grant access to obtain access token to REST resources')
+            error.code = 'ACCESS_GRANT'
+            reject(error)
+          }
           resolve(response.data)
         })
         .catch(reject)

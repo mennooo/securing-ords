@@ -1,5 +1,5 @@
 var rest = require('../config/rest')
 
 exports.getHistory = function () {
-  return rest.request().get('orders')
+  return rest.userRequest('get', 'orders')
 }

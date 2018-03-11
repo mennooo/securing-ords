@@ -9,6 +9,8 @@ exports.up = function (knex, Promise) {
       table.string('password')
       table.string('passwordResetToken')
       table.dateTime('passwordResetExpires')
+      table.string('access_token')
+      table.string('refresh_token')
       table.string('gender')
       table.string('location')
       table.string('website')
@@ -18,12 +20,20 @@ exports.up = function (knex, Promise) {
       table.string('google')
       table.string('vk')
       table.timestamps()
+    }),
+    knex.schema.createTable('applications', function (table) {
+      table.increments()
+      table.string('name').unique()
+      table.string('access_token')
+      table.string('refresh_token')
+      table.timestamps()
     })
   ])
 }
 
 exports.down = function (knex, Promise) {
   return Promise.all([
-    knex.schema.dropTable('users')
+    knex.schema.dropTable('users'),
+    knex.schema.dropTable('applications')
   ])
 }

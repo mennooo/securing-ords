@@ -2,9 +2,9 @@
 var rest = require('../config/rest')
 
 exports.getList = function () {
-  return rest.request().get('products')
+  return rest.clientRequest('get', 'products')
 }
 
 exports.getProduct = function (id) {
-  return rest.request().get('products/' + id)
+  return rest.clientRequest('get', 'products/' + id)
 }

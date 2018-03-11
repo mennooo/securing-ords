@@ -3,6 +3,7 @@ var crypto = require('crypto')
 var nodemailer = require('nodemailer')
 var passport = require('passport')
 var User = require('../models/User')
+var rest = require('../config/rest')
 
 /**
  * Login required middleware
@@ -49,9 +50,26 @@ exports.loginPost = function (req, res, next) {
       req.flash('error', info)
       return res.redirect('/login')
     }
-    req.logIn(user, function (err) {
-      res.redirect(req.body.redirect)
-    })
+    // Add oAuth hook
+    if (rest.useOauth) {
+      if (rest.userOAuthFlow.name === rest.userOAuthFlows.implicit.name) {
+        // For implicit flow the user has to grant access again
+        rest.userOAuthFlow.getToken(req.originalUrl)
+          .then(function (oAuthUser) {
+            rest.setOAuthUser(oAuthUser)
+            req.logIn(user, function (err) {
+              res.redirect(req.body.redirect)
+            })
+        })
+      } else {
+        // For other flows, refresh access token
+
+      }
+    } else {
+      req.logIn(user, function (err) {
+        res.redirect(req.body.redirect)
+      })
+    }
   })(req, res, next)
 }
 
@@ -91,7 +109,6 @@ exports.signupPost = function (req, res, next) {
   if (errors) {
     req.flash('error', errors)
     return res.redirect('/signup')
-  }
 
   new User({
     firstname: req.body.firstname,
@@ -105,11 +122,14 @@ exports.signupPost = function (req, res, next) {
       })
     })
     .catch(function (err) {
-      console.log(err.message)
+      if (err.code === 'ACCESS_GRANT') {
+        return res.redirect(rest.userOAuthFlow.uri)
+      }
       if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
         req.flash('error', { msg: 'The email address you have entered is already associated with another account.' })
         return res.redirect('/signup')
       }
+      res.send(err.response.data)
     })
 }
 
