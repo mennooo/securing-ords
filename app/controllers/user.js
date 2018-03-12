@@ -52,11 +52,23 @@ exports.validateLoginFields = function (req, res, next) {
 
   if (errors) {
     req.flash('error', errors)
-    console.log(errors)
     return res.redirect('/login')
   } else {
     next()
   }
+}
+
+exports.validateEmail = function (req, res, next) {
+  // First check if user exists
+  new User({ email: req.body.email })
+    .fetch()
+    .then(function (user) {
+      if (user) {
+        req.flash('error', { msg: 'The email address you have entered is already associated with another account.' })
+        return res.redirect('/signup')
+      }
+      next()
+    })
 }
 
 exports.registerCustomer = function (req, res, next) {
@@ -73,29 +85,16 @@ exports.registerCustomer = function (req, res, next) {
       console.log('User needs to grant access to obtain access token to REST resources')
       res.redirect(rest.userOAuthFlow.uri)
     } else {
-      next()
+      rest.setUserAccount({
+        email: req.body.email
+      })
+      rest.userOAuthFlow.getToken()
+        .then(function (token) {
+          rest.setUserToken(token)
+        })
+        .then(next)
     }
   })
-}
-
-exports.getOAuthToken = function (req, res, next) {
-  next()
-  // Add oAuth hook
-  // if (!rest.useOauth) {
-  //   next()
-  // }
-  // if (rest.userOAuthFlow.name === rest.userOAuthFlows.implicit.name) {
-  //   // For implicit flow the user has to grant access again
-  //   rest.userOAuthFlow.getToken(req.originalUrl)
-  //     .then(function (token) {
-  //       rest.setUserToken(token)
-  //       next()
-  //     })
-  // } else {
-  //   // For other flows, refresh access token
-
-  //   next()
-  // }
 }
 
 /**
@@ -124,13 +123,11 @@ exports.loginPost = function (req, res, next) {
       if (rest.userOAuthFlow.name === rest.userOAuthFlows.implicit.name) {
         // For implicit flow the user has to grant access again
         rest.userOAuthFlow.getToken(req.originalUrl)
-          .then(function (oAuthUser) {
-            rest.setUserToken(oAuthUser)
-              .then(function () {
-                req.logIn(user, function (err) {
-                  res.redirect(req.body.redirect)
-                })
-              })
+          .then(function (token) {
+            rest.setUserToken(token)
+            req.logIn(user, function (err) {
+              res.redirect(req.body.redirect)
+            })
           })
       } else {
         rest.createUserToken(user.get('access_token'), user.get('refresh_token'))
@@ -139,6 +136,7 @@ exports.loginPost = function (req, res, next) {
               access_token: token.accessToken,
               refresh_token: token.refreshToken
             })
+            user.save()
             req.logIn(user, function (err) {
               res.redirect(req.body.redirect)
             })
@@ -197,13 +195,7 @@ exports.signupPost = function (req, res, next) {
         res.redirect('/')
       })
     })
-    .catch(function (err) {
-      if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
-        req.flash('error', { msg: 'The email address you have entered is already associated with another account.' })
-        return res.redirect('/signup')
-      }
-      next(err)
-    })
+    .catch(next)
 }
 
 /**

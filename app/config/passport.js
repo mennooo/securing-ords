@@ -47,6 +47,7 @@ passport.use(new FacebookStrategy({
   passReqToCallback: true
 }, function (req, accessToken, refreshToken, profile, done) {
   if (req.user) {
+    // Update existing user
     new User({ facebook: profile.id })
       .fetch()
       .then(function (user) {
@@ -54,44 +55,104 @@ passport.use(new FacebookStrategy({
           req.flash('error', { msg: 'There is already an existing account linked with Facebook that belongs to you.' })
           return done(null)
         }
-        new User({ id: req.user.id })
-          .fetch()
-          .then(function (user) {
-            user.set('name', user.get('name') || profile.name.givenName + ' ' + profile.name.familyName)
-            user.set('gender', user.get('gender') || profile._json.gender)
-            user.set('picture', user.get('picture') || 'https://graph.facebook.com/' + profile.id + '/picture?type=large')
-            user.set('facebook', profile.id)
-            user.save(user.changed, { patch: true }).then(function () {
-              req.flash('success', { msg: 'Your Facebook account has been linked.' })
-              done(null, user)
+        console.log(profile)
+        rest.clientRequest('post', '/customers', {
+          'first_name': profile.name.givenName,
+          'last_name': profile.name.familyName,
+          'email': profile.emails[0].value,
+          'facebook_id': profile.id
+        })
+        .then(function (response) {
+          // We don't use authorization code flow anymore for facebook users
+          // Because the user password is so they can't authorize anything (they have to login)
+          rest.changeUserAuthFlow(rest.userOAuthFlows.client_credentials.name)
+          rest.userOAuthFlow.getToken()
+            .then(function (token) {
+              rest.setUserToken(token)
+              new User({ id: req.user.id })
+              .fetch()
+              .then(function (user) {
+                rest.setUserAccount({
+                  facebookid: profile.id,
+                  email: user.get('email')
+                })
+                user.set('firstname', user.get('firstname') || profile.name.givenName)
+                user.set('lastname', user.get('lastname') || profile.name.familyName)
+                user.set('gender', user.get('gender') || profile._json.gender)
+                user.set('picture', user.get('picture') || 'https://graph.facebook.com/' + profile.id + '/picture?type=large')
+                user.set('facebook', profile.id)
+                user.set('access_token', token.accessToken)
+                user.set('refresh_token', token.refreshToken)
+                user.save(user.changed, { patch: true }).then(function () {
+                  req.flash('success', { msg: 'Your Facebook account has been linked.' })
+                  done(null, user)
+                })
+              })
             })
-          })
+        })
+        .catch(done)
       })
   } else {
+    // New user
     new User({ facebook: profile.id })
       .fetch()
       .then(function (user) {
         if (user) {
-          return done(null, user)
-        }
-        new User({ email: profile._json.email })
+          rest.changeUserAuthFlow(rest.userOAuthFlows.client_credentials.name)
+          rest.setUserAccount({
+            facebookid: profile.id,
+            email: user.get('email')
+          })
+          rest.userOAuthFlow.getToken()
+            .then(function (token) {
+              rest.setUserToken(token)
+              return done(null, user)
+            })
+        } else {
+          new User({ email: profile._json.email })
           .fetch()
           .then(function (user) {
             if (user) {
               req.flash('error', { msg: user.get('email') + ' is already associated with another account.' })
               return done()
             }
-            user = new User()
-            user.set('name', profile.name.givenName + ' ' + profile.name.familyName)
-            user.set('email', profile._json.email)
-            user.set('gender', profile._json.gender)
-            user.set('location', profile._json.location && profile._json.location.name)
-            user.set('picture', 'https://graph.facebook.com/' + profile.id + '/picture?type=large')
-            user.set('facebook', profile.id)
-            user.save().then(function (user) {
-              done(null, user)
+            console.log(profile)
+            
+            rest.clientRequest('post', '/customers', {
+              'first_name': profile.name.givenName,
+              'last_name': profile.name.familyName,
+              'email': profile.emails[0].value,
+              'facebook_id': profile.id
             })
+            .then(function (response) {
+              // We don't use authorization code flow anymore for facebook users
+              // Because the user password is so they can't authorize anything (they have to login)
+              rest.changeUserAuthFlow(rest.userOAuthFlows.client_credentials.name)
+              rest.userOAuthFlow.getToken()
+                .then(function (token) {
+                  rest.setUserToken(token)
+                  user = new User()
+                  user.set('firstname', user.get('firstname') || profile.name.givenName)
+                  user.set('lastname', user.get('lastname') || profile.name.familyName)
+                  user.set('email', profile._json.email)
+                  user.set('gender', profile._json.gender)
+                  user.set('location', profile._json.location && profile._json.location.name)
+                  user.set('picture', 'https://graph.facebook.com/' + profile.id + '/picture?type=large')
+                  user.set('facebook', profile.id)
+                  user.set('access_token', token.accessToken)
+                  user.set('refresh_token', token.refreshToken)
+                  user.save().then(function (user) {
+                    rest.setUserAccount({
+                      facebookid: profile.id,
+                      email: user.get('email')
+                    })
+                    done(null, user)
+                  })
+                })
+            })
+            .catch(done)
           })
+        }
       })
   }
 }))

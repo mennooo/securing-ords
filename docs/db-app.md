@@ -1,5 +1,6 @@
 ```sql
 alter table demo_customers add (cust_password varchar2(2000));
+alter table demo_customers add (facebook_id number);
 
 create table demo_cust_roles (
   role_name varchar2(200) not null
@@ -115,6 +116,28 @@ end;
 begin 
  oauth.grant_client_role(
      'Fashion Store (customers)',
+     'demo.api.customer');
+ commit;
+end;
+/
+
+begin
+ 
+  oauth.create_client(
+    p_name => 'Fashion Store (Customer client credentials)',
+    p_grant_type => 'client_credentials',
+    p_owner => 'DEMO',
+    p_description => 'For accessing customer resources without grants',
+    p_support_email => 'support@example.org',
+    p_privilege_names => ''
+    );
+  commit;
+end;
+/
+
+begin 
+ oauth.grant_client_role(
+     'Fashion Store (Customer client credentials)',
      'demo.api.customer');
  commit;
 end;

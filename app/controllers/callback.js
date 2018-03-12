@@ -24,13 +24,7 @@ exports.callbackGet = function (req, res, next) {
                   res.redirect('/')
                 })
               })
-              .catch(function (err) {
-                if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
-                  req.flash('error', { msg: 'The email address you have entered is already associated with another account.' })
-                  return res.redirect('/signup')
-                }
-                next(err)
-              })
+              .catch(next)
           })
       })
   }, 1000)

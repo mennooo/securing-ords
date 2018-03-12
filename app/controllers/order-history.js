@@ -8,7 +8,6 @@ exports.historyGet = function (req, res, next) {
   new User({ id: req.user.id })
     .fetch()
     .then(function (user) {
-
       OrderHistory.getHistory(user)
         .then(function (response) {
           console.log(response.data.items)

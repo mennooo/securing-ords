@@ -8,6 +8,7 @@ var restURL = process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.R
 var axiosAppInstance = axios.create({
   baseURL: restURL
 })
+
 var axiosUserInstance = axios.create({
   baseURL: restURL
 })
@@ -15,29 +16,36 @@ var axiosUserInstance = axios.create({
 var appORDSAuth = new ClientOAuth2({
   clientId: process.env.APP_OAUTH_CLIENT_ID,
   clientSecret: process.env.APP_OAUTH_CLIENT_SECRET,
-  accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH,
-  authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH
+  accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH
 })
+
 var userORDSAuth = new ClientOAuth2({
   clientId: process.env.USER_OAUTH_CLIENT_ID,
   clientSecret: process.env.USER_OAUTH_CLIENT_SECRET,
   accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH,
   authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH,
-  // redirectUri: 'http://localhost:3000/callback',
-  // scopes: ['demo.api.account'],
   state: 'boemba'
+})
+
+var userCredentialsORDSAuth = new ClientOAuth2({
+  clientId: process.env.USER_CRED_OAUTH_CLIENT_ID,
+  clientSecret: process.env.USER_CRED_OAUTH_CLIENT_SECRET,
+  accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH
 })
 
 var useOauth = process.env.USE_OAUTH
 var userToken = null // For requests behalf of user
 var appToken = null // For requests on behalf of app
 var authHeader = null
+var userAccount = null
 
 // ORDS supports the following Oauth flows
 var userOAuthFlows = {
   client_credentials: {
     name: 'client_credentials',
-    getToken: userORDSAuth.credentials.getToken
+    getToken: function () {
+      return userCredentialsORDSAuth.credentials.getToken()
+    }
   },
   authorization_code: {
     name: 'authorization_code',
@@ -53,10 +61,6 @@ var userOAuthFlows = {
   }
 }
 
-// var appOAuthFlow = {
-//   name: 'client_credentials',
-//   getToken: appORDSAuth.credentials.getToken
-// }
 exports.init = function (appName) {
   // The app is also an oAuth user so always get an access token at startup
   new Application({ name: appName })
@@ -86,7 +90,6 @@ exports.init = function (appName) {
     })
 }
 
-// exports.appOAuthFlow =
 exports.userOAuthFlows = userOAuthFlows
 exports.userOAuthFlow = userOAuthFlows[process.env.USER_OAUTH_FLOW]
 
@@ -104,10 +107,16 @@ exports.clientRequest = function (method, path, data) {
 
 exports.userRequest = function (method, path, data) {
   if (useOauth) {
+    var params = {}
+    if (exports.userOAuthFlow.name === 'client_credentials') {
+      params = userAccount
+    }
+    console.log(params)
     return axiosUserInstance.request(userToken.sign({
       method: method,
       url: path,
-      data: data
+      data: data,
+      params: params
     }))
   } else {
     return axiosUserInstance[method](path, data)
@@ -138,9 +147,20 @@ exports.setUserToken = function (token) {
 
 exports.createUserToken = function (accessToken, refreshToken) {
   userToken = userORDSAuth.createToken(accessToken, refreshToken, 'bearer')
+  console.log('current token', userToken.accessToken)
   userToken.expiresIn(7200)
-  // sign the user requests
-  return userToken.refresh()
+  if (refreshToken) {
+    return userToken.refresh()
+    .then(function (token) {
+      console.log('new token', token.accessToken)
+      userToken = token
+      return token
+    })
+  } else {
+    return new Promise(function (resolve, reject) {
+      resolve(userToken)
+    })
+  }
 }
 
 exports.signUserOut = function () {
@@ -148,6 +168,16 @@ exports.signUserOut = function () {
     method: 'get',
     url: process.env.REST_HOST + process.env.REST_BASE_PATH + 'signed-out'
   }))
+}
+
+exports.changeUserAuthFlow = function (flowName) {
+  exports.userOAuthFlow = userOAuthFlows[flowName]
+  // Obtain the token
+
+}
+
+exports.setUserAccount = function (account) {
+  userAccount = account
 }
 
 exports.host = process.env.REST_HOST
