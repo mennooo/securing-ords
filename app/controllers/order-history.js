@@ -4,7 +4,7 @@ var OrderHistory = require('../models/OrderHistory')
 /**
  * GET /
  */
-exports.historyGet = function (req, res) {
+exports.historyGet = function (req, res, next) {
   new User({ id: req.user.id })
     .fetch()
     .then(function (user) {
@@ -17,12 +17,7 @@ exports.historyGet = function (req, res) {
             orders: response.data.items
           })
         })
-        .catch(function (error) {
-          console.log(error)
-          res.send(error.message)
-        })
+        .catch(next)
     })
-    .catch(function (err) {
-      console.log(err.message)
-    })
+    .catch(next)
 }

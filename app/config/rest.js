@@ -5,7 +5,10 @@ var Application = require('../models/Application')
 
 var restURL = process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.REST_MODULE
 
-var axiosInstance = axios.create({
+var axiosAppInstance = axios.create({
+  baseURL: restURL
+})
+var axiosUserInstance = axios.create({
   baseURL: restURL
 })
 
@@ -13,24 +16,21 @@ var appORDSAuth = new ClientOAuth2({
   clientId: process.env.APP_OAUTH_CLIENT_ID,
   clientSecret: process.env.APP_OAUTH_CLIENT_SECRET,
   accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH,
-  authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH,
-  redirectUri: 'http://localhost:3000',
-  // scopes: ['demo.api.all'],
-  state: 'boemba'
+  authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH
 })
 var userORDSAuth = new ClientOAuth2({
   clientId: process.env.USER_OAUTH_CLIENT_ID,
   clientSecret: process.env.USER_OAUTH_CLIENT_SECRET,
   accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH,
   authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH,
-  redirectUri: 'http://localhost:3000',
-  // scopes: ['demo.api.all'],
+  // redirectUri: 'http://localhost:3000/callback',
+  // scopes: ['demo.api.account'],
   state: 'boemba'
 })
 
 var useOauth = process.env.USE_OAUTH
-var oAuthUser = null // For requests behalf of user
-var oAuthAppUser = null // For requests on behalf of app
+var userToken = null // For requests behalf of user
+var appToken = null // For requests on behalf of app
 var authHeader = null
 
 // ORDS supports the following Oauth flows
@@ -41,7 +41,9 @@ var userOAuthFlows = {
   },
   authorization_code: {
     name: 'authorization_code',
-    getToken: userORDSAuth.token.getToken,
+    getToken: function (uri) {
+      return userORDSAuth.code.getToken(uri)
+    },
     uri: userORDSAuth.code.getUri()
   },
   implicit: {
@@ -51,10 +53,10 @@ var userOAuthFlows = {
   }
 }
 
-var appOAuthFlow = {
-  name: 'client_credentials',
-  getToken: appORDSAuth.credentials.getToken
-}
+// var appOAuthFlow = {
+//   name: 'client_credentials',
+//   getToken: appORDSAuth.credentials.getToken
+// }
 exports.init = function (appName) {
   // The app is also an oAuth user so always get an access token at startup
   new Application({ name: appName })
@@ -62,20 +64,20 @@ exports.init = function (appName) {
     .then(function (app) {
       // With client_credentials
       appORDSAuth.credentials.getToken()
-        .then(function (user) {
-          user.expiresIn(user.data.expires_in + 1000000)
-          oAuthAppUser = user
+        .then(function (token) {
+          token.expiresIn(token.data.expires_in + 1000000)
+          appToken = token
         })
     })
     .catch(function () {
       console.log('app does not exist')
       appORDSAuth.credentials.getToken()
-        .then(function (user) {
-          oAuthAppUser = user
+        .then(function (token) {
+          appToken = token
           new Application({
             name: appName,
-            access_token: user.accessToken,
-            refresh_token: user.refreshToken
+            access_token: token.accessToken,
+            refresh_token: token.refreshToken
           }).save()
             .then(function (app) {
               console.log('Application is created, access token is', app.get('access_token'))
@@ -84,37 +86,37 @@ exports.init = function (appName) {
     })
 }
 
-exports.oAuthFlows
-exports.appOAuthFlow = appOAuthFlow
+// exports.appOAuthFlow =
+exports.userOAuthFlows = userOAuthFlows
 exports.userOAuthFlow = userOAuthFlows[process.env.USER_OAUTH_FLOW]
 
 exports.clientRequest = function (method, path, data) {
   if (useOauth) {
-    return axiosInstance.request(oAuthAppUser.sign({
+    return axiosAppInstance.request(appToken.sign({
       method: method,
       url: path,
       data: data
     }))
   } else {
-    return axiosInstance[method](path, data)
+    return axiosAppInstance[method](path, data)
   }
 }
 
 exports.userRequest = function (method, path, data) {
   if (useOauth) {
-    return axiosInstance.request(oAuthUser.sign({
+    return axiosUserInstance.request(userToken.sign({
       method: method,
       url: path,
       data: data
     }))
   } else {
-    return axiosInstance[method](path, data)
+    return axiosUserInstance[method](path, data)
   }
 }
 
 exports.setBasicAuthCredentials = function (username, password) {
   authHeader = 'Basic ' + new Buffer(username + ':' + password).toString('base64')
-  axiosInstance = axios.create({
+  axiosUserInstance = axios.create({
     baseURL: restURL,
     auth: {
       username: username,
@@ -129,7 +131,23 @@ exports.getAuthHeader = function () {
 
 exports.useOauth = process.env.USE_OAUTH
 
-exports.setOAuthUser = function (user) {
-  console.log(user) // => { accessToken: '...', tokenType: 'bearer', ... }
-  oAuthUser = user
+exports.setUserToken = function (token) {
+  userToken = token
+  return token
 }
+
+exports.createUserToken = function (accessToken, refreshToken) {
+  userToken = userORDSAuth.createToken(accessToken, refreshToken, 'bearer')
+  userToken.expiresIn(7200)
+  // sign the user requests
+  return userToken.refresh()
+}
+
+exports.signUserOut = function () {
+  return axios.request(userToken.sign({
+    method: 'get',
+    url: process.env.REST_HOST + process.env.REST_BASE_PATH + 'signed-out'
+  }))
+}
+
+exports.host = process.env.REST_HOST

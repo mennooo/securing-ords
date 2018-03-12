@@ -54,3 +54,83 @@ select app_name
 
 http://localhost:8080/ords/demo/oauth/auth?response_type=code&client_id=zQfSbx3bXRkC1ke4yrP9fA...&state=aa
 http://localhost:8080/ords/demo/oauth/auth?client_id=-SujDXDkATsfWO6_tezY5Q..&response_type=code&state=aa
+
+
+
+
+exec OAUTH.DELETE_CLIENT('Fashion Store');
+exec OAUTH.DELETE_CLIENT('Fashion Store (customers)');
+
+begin
+ 
+  oauth.create_client(
+    p_name => 'Fashion Store',
+    p_grant_type => 'client_credentials',
+    p_owner => 'Example Inc.',
+    p_description => 'Sample for demonstrating Client Credentials Flow',
+    p_redirect_uri => 'http://example.org/auth/code/example/',
+    p_support_email => 'support@example.org',
+    p_support_uri => 'http://example.org/support',
+    p_privilege_names => '' -- client_credentials don't need privileges
+    );
+  commit;
+end;
+/
+
+begin 
+ oauth.grant_client_role(
+     'Fashion Store',
+     'demo.api.application');
+ commit;
+end;
+/
+
+declare
+  my_privs t_ords_vchar_tab  := t_ords_vchar_tab (); 
+begin
+
+  my_privs.EXTEND (2); 
+  my_privs(1):='demo.api.account'; 
+  my_privs(2):='demo.api.orders'; 
+  
+  oauth.create_client(
+    p_name => 'Fashion Store (customers)',
+    p_grant_type => 'authorization_code',
+    p_owner => 'DEMO',
+    p_description => 'Sample for demonstrating Client Credentials Flow',
+    p_redirect_uri => 'http://localhost:3000/callback',
+    p_support_email => 'support@example.org',
+    p_support_uri => 'http://localhost:3000',
+    p_privilege_names => 'demo.api.account' -- Currently not possible to add multiple privileges
+    );
+    
+--  oauth.update_client(
+--    p_name => 'Fashion Store (customers)'
+--  , p_privilege_names => my_privs
+--  );
+  commit;
+end;
+/
+
+begin 
+ oauth.grant_client_role(
+     'Fashion Store (customers)',
+     'demo.api.customer');
+ commit;
+end;
+/
+
+select * from user_ords_clients;
+select * from user_ords_client_privileges;
+
+begin
+  oauth.modify_approval_status(
+    p_status      => 'PENDING',
+    p_updated_by  => 'DEMO',
+
+    p_approval_user => 'mennooo@hotmail.com',
+    p_approval_id => 10779
+  );
+  commit;
+end;
+/

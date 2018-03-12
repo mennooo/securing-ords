@@ -4,6 +4,11 @@ var nodemailer = require('nodemailer')
 var passport = require('passport')
 var User = require('../models/User')
 var rest = require('../config/rest')
+var shajs = require('sha.js')
+
+function sha256hash (text) {
+  return shajs('sha256').update(text).digest('hex')
+}
 
 /**
  * Login required middleware
@@ -14,6 +19,83 @@ exports.ensureAuthenticated = function (req, res, next) {
   } else {
     res.redirect('/login?redirect=' + req.url)
   }
+}
+
+exports.validateSignupFields = function (req, res, next) {
+  req.assert('firstname', 'First Name cannot be blank').notEmpty()
+  req.assert('lastname', 'Last Name cannot be blank').notEmpty()
+  req.assert('email', 'Email is not valid').isEmail()
+  req.assert('email', 'Email cannot be blank').notEmpty()
+  req.assert('password', 'Password must be at least 4 characters long').len(4)
+  req.sanitize('email').normalizeEmail({ remove_dots: false })
+
+  var errors = req.validationErrors()
+
+  if (errors) {
+    req.flash('error', errors)
+    res.redirect('/signup')
+  } else {
+  // Hash the password
+    req.body.password = sha256hash(req.body.password)
+
+    next()
+  }
+}
+
+exports.validateLoginFields = function (req, res, next) {
+  req.assert('email', 'Email is not valid').isEmail()
+  req.assert('email', 'Email cannot be blank').notEmpty()
+  req.assert('password', 'Password cannot be blank').notEmpty()
+  req.sanitize('email').normalizeEmail({ remove_dots: false })
+
+  var errors = req.validationErrors()
+
+  if (errors) {
+    req.flash('error', errors)
+    console.log(errors)
+    return res.redirect('/login')
+  } else {
+    next()
+  }
+}
+
+exports.registerCustomer = function (req, res, next) {
+  rest.clientRequest('post', '/customers', {
+    'first_name': req.body.firstname,
+    'last_name': req.body.lastname,
+    'email': req.body.email,
+    'password': req.body.password
+  })
+  .then(function (response) {
+    // req.body.customerid = response.data.location
+    // Get oauth access token (if needed)
+    if (rest.useOauth && rest.userOAuthFlow.uri) {
+      console.log('User needs to grant access to obtain access token to REST resources')
+      res.redirect(rest.userOAuthFlow.uri)
+    } else {
+      next()
+    }
+  })
+}
+
+exports.getOAuthToken = function (req, res, next) {
+  next()
+  // Add oAuth hook
+  // if (!rest.useOauth) {
+  //   next()
+  // }
+  // if (rest.userOAuthFlow.name === rest.userOAuthFlows.implicit.name) {
+  //   // For implicit flow the user has to grant access again
+  //   rest.userOAuthFlow.getToken(req.originalUrl)
+  //     .then(function (token) {
+  //       rest.setUserToken(token)
+  //       next()
+  //     })
+  // } else {
+  //   // For other flows, refresh access token
+
+  //   next()
+  // }
 }
 
 /**
@@ -33,37 +115,35 @@ exports.loginGet = function (req, res) {
  * POST /login
  */
 exports.loginPost = function (req, res, next) {
-  req.assert('email', 'Email is not valid').isEmail()
-  req.assert('email', 'Email cannot be blank').notEmpty()
-  req.assert('password', 'Password cannot be blank').notEmpty()
-  req.sanitize('email').normalizeEmail({ remove_dots: false })
-
-  var errors = req.validationErrors()
-
-  if (errors) {
-    req.flash('error', errors)
-    return res.redirect('/login')
-  }
-
   passport.authenticate('local', function (err, user, info) {
     if (!user) {
       req.flash('error', info)
       return res.redirect('/login')
     }
-    // Add oAuth hook
     if (rest.useOauth) {
       if (rest.userOAuthFlow.name === rest.userOAuthFlows.implicit.name) {
         // For implicit flow the user has to grant access again
         rest.userOAuthFlow.getToken(req.originalUrl)
           .then(function (oAuthUser) {
-            rest.setOAuthUser(oAuthUser)
+            rest.setUserToken(oAuthUser)
+              .then(function () {
+                req.logIn(user, function (err) {
+                  res.redirect(req.body.redirect)
+                })
+              })
+          })
+      } else {
+        rest.createUserToken(user.get('access_token'), user.get('refresh_token'))
+          .then(function (token) {
+            user.set({
+              access_token: token.accessToken,
+              refresh_token: token.refreshToken
+            })
             req.logIn(user, function (err) {
               res.redirect(req.body.redirect)
             })
-        })
-      } else {
-        // For other flows, refresh access token
-
+          })
+          .catch(next)
       }
     } else {
       req.logIn(user, function (err) {
@@ -76,9 +156,17 @@ exports.loginPost = function (req, res, next) {
 /**
  * GET /logout
  */
-exports.logout = function (req, res) {
+exports.logout = function (req, res, next) {
   req.logout()
-  res.redirect('/')
+  if (rest.useOauth) {
+    rest.signUserOut()
+      .then(function () {
+        res.redirect('/')
+      })
+      .catch(next)
+  } else {
+    res.redirect('/')
+  }
 }
 
 /**
@@ -97,24 +185,12 @@ exports.signupGet = function (req, res) {
  * POST /signup
  */
 exports.signupPost = function (req, res, next) {
-  req.assert('firstname', 'First Name cannot be blank').notEmpty()
-  req.assert('lastname', 'Last Name cannot be blank').notEmpty()
-  req.assert('email', 'Email is not valid').isEmail()
-  req.assert('email', 'Email cannot be blank').notEmpty()
-  req.assert('password', 'Password must be at least 4 characters long').len(4)
-  req.sanitize('email').normalizeEmail({ remove_dots: false })
-
-  var errors = req.validationErrors()
-
-  if (errors) {
-    req.flash('error', errors)
-    return res.redirect('/signup')
-
   new User({
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     email: req.body.email,
-    password: req.body.password
+    password: req.body.password,
+    customerid: req.body.customerid
   }).save()
     .then(function (user) {
       req.logIn(user, function (err) {
@@ -122,14 +198,11 @@ exports.signupPost = function (req, res, next) {
       })
     })
     .catch(function (err) {
-      if (err.code === 'ACCESS_GRANT') {
-        return res.redirect(rest.userOAuthFlow.uri)
-      }
       if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
         req.flash('error', { msg: 'The email address you have entered is already associated with another account.' })
         return res.redirect('/signup')
       }
-      res.send(err.response.data)
+      next(err)
     })
 }
 

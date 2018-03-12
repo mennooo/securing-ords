@@ -1,7 +1,6 @@
 var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy
 var FacebookStrategy = require('passport-facebook').Strategy
-var OAuth2Strategy = require('passport-oauth2').Strategy
 
 var User = require('../models/User')
 var rest = require('../config/rest')
@@ -30,13 +29,7 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, function (email, pass
           return done(null, false, { msg: 'Invalid email or password' })
         }
 
-        // Add a hook for REST authentication
-        // if (rest.useOauth() && rest.oAuthFlow.uri) {
-        //   rest.setOauthUser(user.get('access_token'), user.get('refresh_token'))
-        // } else {
-        //   rest.setBasicAuthCredentials(email, password)
-        // }
-        if (!rest.useOauth()) {
+        if (!rest.useOauth) {
           rest.setBasicAuthCredentials(email, password)
         }
         
@@ -44,21 +37,6 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, function (email, pass
       })
     })
 }))
-
-// Sign in with Oauth (Application is client)
-// passport.use(new OAuth2Strategy({
-//   authorizationURL: process.env.REST_BASE_URL + 'oauth/authorize',
-//   tokenURL: process.env.REST_BASE_URL + 'oauth/token',
-//   clientID: process.env.OAUTH2_CLIENT_ID,
-//   clientSecret: process.env.OAUTH2_CLIENT_SECRET,
-//   callbackURL: 'http://localhost:3000/auth/example/callback'
-// },
-//   function (accessToken, refreshToken, profile, cb) {
-//     User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-//       return cb(err, user)
-//     })
-//   }
-// ))
 
 // Sign in with Facebook
 passport.use(new FacebookStrategy({

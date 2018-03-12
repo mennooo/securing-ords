@@ -12,7 +12,7 @@ function arrayTo2DArray (list, howMany) {
 /**
  * GET /
  */
-exports.index = function (req, res) {
+exports.index = function (req, res, next) {
   Product.getList()
     .then(function (response) {
       res.render('home', {
@@ -20,10 +20,5 @@ exports.index = function (req, res) {
         productsPerRow: arrayTo2DArray(response.data.items, 4)
       })
     })
-    .catch(function (error) {
-      console.log(1, Object.getOwnPropertyNames(error))
-      res.send({
-        messages: error.message
-      })
-    })
+    .catch(next)
 }

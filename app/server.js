@@ -24,9 +24,6 @@ var callbackController = require('./controllers/callback')
 // Passport OAuth strategies
 require('./config/passport')
 
-// REST config
-var rest = require('./config/rest')
-
 var app = express()
 
 app.set('views', path.join(__dirname, 'views'))
@@ -55,9 +52,9 @@ app.get('/account', userController.ensureAuthenticated, userController.accountGe
 app.put('/account', userController.ensureAuthenticated, userController.accountPut)
 app.delete('/account', userController.ensureAuthenticated, userController.accountDelete)
 app.get('/signup', userController.signupGet)
-app.post('/signup', userController.signupPost)
+app.post('/signup', [userController.validateSignupFields, userController.registerCustomer], userController.signupPost)
 app.get('/login', userController.loginGet)
-app.post('/login', userController.loginPost)
+app.post('/login', [userController.validateLoginFields, userController.getOAuthToken], userController.loginPost)
 app.get('/forgot', userController.forgotGet)
 app.post('/forgot', userController.forgotPost)
 app.get('/reset/:token', userController.resetGet)
@@ -79,13 +76,22 @@ if (app.get('env') === 'production') {
     console.error(err.stack)
     res.sendStatus(err.status || 500)
   })
+} else {
+  app.use(function (err, req, res, next) {
+    console.error(err.stack)
+    var response = err.message
+    if (err.body) {
+      response = err.body
+    }
+    if (err.response) {
+      response = err.response.data
+    }
+    res.status(500).send(response)
+  })
 }
 
 app.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'))
-
-  // Create application
-  rest.init('fashion')
 })
 
 module.exports = app
