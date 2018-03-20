@@ -30,7 +30,7 @@ insert into applications (app_name, app_username, app_password) values ('Fashion
 
 create table application_roles (app_name varchar2(50), role_name varchar2(255));
 
-insert into application_roles(app_name, role_name) values ('fashion', 'demo.api.all');
+insert into application_roles(app_name, role_name) values ('fashion', 'demo.api.application');
 
 create or replace view vw_users as
 select cust_email
@@ -124,11 +124,13 @@ end;
 begin
  
   oauth.create_client(
-    p_name => 'Fashion Store (Customer client credentials)',
-    p_grant_type => 'client_credentials',
+    p_name => 'Fashion Store (Customer implicit flow)',
+    p_grant_type => 'implicit',
     p_owner => 'DEMO',
     p_description => 'For accessing customer resources without grants',
+    p_redirect_uri => 'http://localhost:3000/callback',
     p_support_email => 'support@example.org',
+    p_support_uri => 'http://localhost:3000',
     p_privilege_names => ''
     );
   commit;

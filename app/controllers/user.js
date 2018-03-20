@@ -64,6 +64,7 @@ exports.validateEmail = function (req, res, next) {
     .fetch()
     .then(function (user) {
       if (user) {
+        console.log(user)
         req.flash('error', { msg: 'The email address you have entered is already associated with another account.' })
         return res.redirect('/signup')
       }

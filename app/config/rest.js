@@ -14,23 +14,29 @@ var axiosUserInstance = axios.create({
 })
 
 var appORDSAuth = new ClientOAuth2({
-  clientId: process.env.APP_OAUTH_CLIENT_ID,
-  clientSecret: process.env.APP_OAUTH_CLIENT_SECRET,
+  clientId: process.env.APP_CLIENT_CRED_OAUTH_CLIENT_ID,
+  clientSecret: process.env.APP_CLIENT_CRED_OAUTH_CLIENT_SECRET,
   accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH
 })
 
 var userORDSAuth = new ClientOAuth2({
-  clientId: process.env.USER_OAUTH_CLIENT_ID,
-  clientSecret: process.env.USER_OAUTH_CLIENT_SECRET,
+  clientId: process.env.USER_AUTH_CODE_OAUTH_CLIENT_ID,
+  clientSecret: process.env.USER_AUTH_CODE_OAUTH_CLIENT_SECRET,
   accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH,
   authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH,
   state: 'boemba'
 })
 
 var userCredentialsORDSAuth = new ClientOAuth2({
-  clientId: process.env.USER_CRED_OAUTH_CLIENT_ID,
-  clientSecret: process.env.USER_CRED_OAUTH_CLIENT_SECRET,
+  clientId: process.env.USER_CLIENT_CRED_OAUTH_CLIENT_ID,
+  clientSecret: process.env.USER_CLIENT_CRED_OAUTH_CLIENT_SECRET,
   accessTokenUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_TOKEN_PATH
+})
+
+var userImplicitORDSAuth = new ClientOAuth2({
+  clientId: process.env.USER_IMPLICIT_OAUTH_CLIENT_ID,
+  authorizationUri: process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.OAUTH_AUTHORIZE_PATH,
+  state: 'boemba'
 })
 
 var useOauth = process.env.USE_OAUTH
@@ -56,8 +62,10 @@ var userOAuthFlows = {
   },
   implicit: {
     name: 'implicit',
-    getToken: userORDSAuth.token.getToken,
-    uri: userORDSAuth.token.getUri()
+    getToken: function (uri) {
+      return userImplicitORDSAuth.token.getToken(uri)
+    },
+    uri: userImplicitORDSAuth.token.getUri()
   }
 }
 
@@ -71,6 +79,9 @@ exports.init = function (appName) {
         .then(function (token) {
           token.expiresIn(token.data.expires_in + 1000000)
           appToken = token
+        })
+        .catch(function (err) {
+          console.log(err)
         })
     })
     .catch(function () {
