@@ -2,6 +2,7 @@ var axios = require('axios')
 var ClientOAuth2 = require('client-oauth2')
 
 var Application = require('../models/Application')
+var User = require('../models/User')
 
 var restURL = process.env.REST_HOST + process.env.REST_BASE_PATH + process.env.REST_MODULE
 
@@ -74,6 +75,7 @@ exports.init = function (appName) {
   new Application({ name: appName })
     .fetch()
     .then(function (app) {
+      console.log('app is found')
       // With client_credentials
       appORDSAuth.credentials.getToken()
         .then(function (token) {
