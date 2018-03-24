@@ -1,4 +1,5 @@
 # Securing Oracle REST Data Services
+A lot of the content is still 'work in progress', please follow me on twitter where I will announce completion: https://www.twitter.com/mennooo.
 How to secure a REST API build with Oracle REST Data Services (ORDS)
 
 ## Content
